@@ -1,0 +1,18 @@
+version: '3'
+services:
+    postgres:
+        image: postgres
+        environment:
+            - POSTGRES_USER=admin
+            - POSTGRES_PASSWORD=password
+            - POSTGRES_DB=DBName
+        ports:
+            - '5432:5432'
+    pgadmin:
+        image: dpage/pgadmin4
+        container_name: pgadmin
+        environment:
+            - PGADMIN_DEFAULT_EMAIL=admin@random-example.com
+            - PGADMIN_DEFAULT_PASSWORD=password
+        ports:
+            - 2345:80
