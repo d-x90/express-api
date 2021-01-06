@@ -1,7 +1,7 @@
 const Joi = require('joi');
 const { USER_ROLES } = require('./enums');
 
-const PASSWORD_MIN_LENGTH = Number(process.env.PASSWORD_MIN_LENGTH) || 4;
+const { PASSWORD_MIN_LENGTH } = require('./config');
 
 const validators = {};
 

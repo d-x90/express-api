@@ -5,8 +5,7 @@ const bcrypt = require('bcrypt');
 
 const authService = {};
 
-const jwtSignKey = process.env.JWT_SIGN_KEY;
-const jwtExpiration = process.env.JWT_EXPIRATION;
+const { JWT_SIGN_KEY, JWT_EXPIRATION } = require('../config');
 
 const getJwtTokenForUser = (user) => {
     const payload = {
@@ -18,8 +17,8 @@ const getJwtTokenForUser = (user) => {
         role: user.role,
     };
 
-    return jwt.sign({ ...payload }, jwtSignKey, {
-        expiresIn: jwtExpiration,
+    return jwt.sign({ ...payload }, JWT_SIGN_KEY, {
+        expiresIn: JWT_EXPIRATION,
     });
 };
 

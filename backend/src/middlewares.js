@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SIGN_KEY = process.env.JWT_SIGN_KEY;
+const { JWT_SIGN_KEY, NODE_ENV } = require('./config');
 
 const middlewares = {};
 
@@ -13,7 +13,7 @@ middlewares.authenticateJWT = (req, res, next) => {
         jwt.verify(token, JWT_SIGN_KEY, (err, userInfo) => {
             if (err) {
                 res.status(403);
-                next(new Error('Forbidden'));
+                throw new Error('Forbidden');
             }
 
             req.userInfo = userInfo;
@@ -21,7 +21,7 @@ middlewares.authenticateJWT = (req, res, next) => {
         });
     } else {
         res.status(401);
-        next(new Error('Unauthorized'));
+        throw new Error('Unauthorized');
     }
 };
 
@@ -36,7 +36,7 @@ middlewares.errorHandler = (error, req, res, next) => {
     res.status(statusCode);
     res.json({
         message: error.message,
-        stack: process.env.NODE_ENV === 'production' ? '👀' : error.stack,
+        stack: NODE_ENV === 'production' ? '👀' : error.stack,
     });
 };
 

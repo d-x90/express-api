@@ -1,7 +1,6 @@
 const { Sequelize } = require('sequelize');
 const logger = require('./logger').get('db');
-
-const DB_CONNECTION_STRING = process.env.DB_CONNECTION_STRING;
+const { DB_CONNECTION_STRING } = require('./config');
 
 const sequelize = new Sequelize(DB_CONNECTION_STRING, {
     pool: {
