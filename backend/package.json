@@ -5,7 +5,8 @@
     "main": "src/app.js",
     "scripts": {
         "start": "nodemon src/app.js",
-        "serve": "node src/app.js"
+        "serve": "node src/app.js",
+        "test": "mocha"
     },
     "keywords": [],
     "author": "d-x90",
@@ -26,6 +27,9 @@
         "winston": "^3.3.3"
     },
     "devDependencies": {
-        "nodemon": "^2.0.6"
+        "chai": "^4.2.0",
+        "mocha": "^8.2.1",
+        "nodemon": "^2.0.6",
+        "sinon": "^9.2.3"
     }
 }
