@@ -1,3 +1,4 @@
+const { response } = require('express');
 const jwt = require('jsonwebtoken');
 
 const { JWT_SIGN_KEY, NODE_ENV } = require('./config');
@@ -32,10 +33,15 @@ middlewares.notFound = (req, res, next) => {
 middlewares.errorHandler = (error, req, res, next) => {
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     res.status(statusCode);
-    res.json({
+    const response = {
         message: error.message,
-        stack: NODE_ENV === 'production' ? '👀' : error.stack,
-    });
+    };
+
+    if (NODE_ENV === 'development') {
+        response.stack = error.stack;
+    }
+
+    res.json(response);
 };
 
 module.exports = middlewares;

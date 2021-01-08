@@ -11,7 +11,8 @@ userRoutes.get('/own-user', authenticateJWT, async (req, res, next) => {
             return res.json(mapUserToUserDto(user));
         }
 
-        res.sendStatus(404);
+        res.status(404);
+        next(new Error('User not found'));
     } catch (err) {
         logger.error(`Couldn't get user with id: '${req.userInfo.id}'`);
         next(err);
@@ -27,7 +28,8 @@ userRoutes.delete('/own-user', authenticateJWT, async (req, res, next) => {
         if (numberOfUserDeleted === 1) {
             res.sendStatus(204);
         } else if (numberOfUserDeleted === 0) {
-            res.sendStatus(404);
+            res.status(404);
+            next(new Error('User not found'));
         } else {
             next(new Error());
         }
