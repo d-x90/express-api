@@ -1,18 +1,24 @@
 const Joi = require('joi');
-const { USER_ROLES } = require('./enums');
+const { REQUEST_PAYLOAD_TYPE, USER_ROLES } = require('./enums');
 
 const { PASSWORD_MIN_LENGTH } = require('./config');
 
 const validators = {};
 
-function validateRequest(req, res, next, schema) {
+function validateRequest(
+    req,
+    res,
+    next,
+    schema,
+    requestPayloadType = REQUEST_PAYLOAD_TYPE.BODY
+) {
     const options = {
         abortEarly: false, // include all errors
         allowUnknown: true, // ignore unknown props
         stripUnknown: true, // remove unknown props
     };
 
-    const { error, value } = schema.validate(req.body, options);
+    const { error, value } = schema.validate(req[requestPayloadType], options);
     if (error) {
         res.status(400);
         next(
@@ -23,7 +29,7 @@ function validateRequest(req, res, next, schema) {
             )
         );
     } else {
-        req.body = value;
+        req[requestPayloadType] = value;
         next();
     }
 }
