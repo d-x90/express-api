@@ -54,13 +54,9 @@ authService.login = async (usernameOrEmail, password) => {
 
     if (await bcrypt.compare(password, user.password)) {
         const token = getJwtTokenForUser(user);
-
         logger.info(`JWT token created for user '${user.email}'.`);
 
-        return {
-            user,
-            token,
-        };
+        return token;
     } else {
         logger.info(
             `Invalid credentials for usernameOrEmail: '${usernameOrEmail}'`

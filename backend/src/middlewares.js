@@ -10,15 +10,13 @@ middlewares.authenticateJWT = (req, res, next) => {
     if (authHeader) {
         const token = authHeader.split(' ')[1];
 
-        jwt.verify(token, JWT_SIGN_KEY, (err, userInfo) => {
-            if (err) {
-                res.status(403);
-                throw new Error('Forbidden');
-            }
-
-            req.userInfo = userInfo;
+        try {
+            req.userInfo = jwt.verify(token, JWT_SIGN_KEY);
             next();
-        });
+        } catch (err) {
+            res.status(403);
+            throw new Error('Forbidden');
+        }
     } else {
         res.status(401);
         throw new Error('Unauthorized');
@@ -28,7 +26,7 @@ middlewares.authenticateJWT = (req, res, next) => {
 middlewares.notFound = (req, res, next) => {
     const error = new Error(`Not found - ${req.originalUrl}`);
     res.status(404);
-    next(error);
+    throw error;
 };
 
 middlewares.errorHandler = (error, req, res, next) => {

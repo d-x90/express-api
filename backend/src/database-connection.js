@@ -1,6 +1,9 @@
 const { Sequelize } = require('sequelize');
 const logger = require('./logger').get('db');
-const { DB_CONNECTION_STRING } = require('./config');
+const {
+    DB_CONNECTION_STRING,
+    DB_LOG_SQL_TO_OUTPUT_ENABLED,
+} = require('./config');
 
 const sequelize = new Sequelize(DB_CONNECTION_STRING, {
     pool: {
@@ -9,6 +12,7 @@ const sequelize = new Sequelize(DB_CONNECTION_STRING, {
         acquire: 10000,
         idle: 10000,
     },
+    logging: DB_LOG_SQL_TO_OUTPUT_ENABLED,
 });
 
 sequelize

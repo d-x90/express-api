@@ -23,7 +23,7 @@ authRoutes.post(
 
 authRoutes.post('/login', validateUserLogin, async (req, res, next) => {
     try {
-        const { user, token } = await authService.login(
+        const token = await authService.login(
             req.body.usernameOrEmail,
             req.body.password
         );

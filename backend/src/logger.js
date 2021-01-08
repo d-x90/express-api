@@ -1,7 +1,17 @@
 const winston = require('winston');
+const { LOGGING_ENABLED } = require('./config');
 
 module.exports = {
     get: (serviceName) => {
+        if (!LOGGING_ENABLED) {
+            return {
+                info: () => {},
+                debug: () => {},
+                warn: () => {},
+                error: () => {},
+            };
+        }
+
         const logger = winston.createLogger({
             format: winston.format.combine(
                 winston.format.timestamp(),
