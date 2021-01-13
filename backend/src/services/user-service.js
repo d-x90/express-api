@@ -3,24 +3,24 @@ const { Op } = require('sequelize');
 
 const userService = {};
 
-userService.createUser = async (user) => {
-    return await User.create(user);
+userService.createUser = (user) => {
+    return User.create(user);
 };
 
-userService.getUserById = async (userId) => {
-    return await User.findByPk(userId);
+userService.getUserById = (userId) => {
+    return User.findByPk(userId);
 };
 
-userService.getUserByEmail = async (email) => {
-    return await User.findOne({ where: { email } });
+userService.getUserByEmail = (email) => {
+    return User.findOne({ where: { email } });
 };
 
-userService.getUserByUsername = async (username) => {
-    return await User.findOne({ where: { username } });
+userService.getUserByUsername = (username) => {
+    return User.findOne({ where: { username } });
 };
 
-userService.getUserByUsernameOrEmail = async (usernameOrEmail) => {
-    return await User.findOne({
+userService.getUserByUsernameOrEmail = (usernameOrEmail) => {
+    return User.findOne({
         where: {
             [Op.or]: {
                 username: usernameOrEmail,
@@ -30,16 +30,16 @@ userService.getUserByUsernameOrEmail = async (usernameOrEmail) => {
     });
 };
 
-userService.updateUser = async (user) => {
-    return await User.update(user, {
+userService.updateUser = (user) => {
+    return User.update(user, {
         where: {
             id: user.id,
         },
     });
 };
 
-userService.deleteUser = async (userId) => {
-    return await User.destroy({
+userService.deleteUser = (userId) => {
+    return User.destroy({
         where: {
             id: userId,
         },
@@ -47,7 +47,7 @@ userService.deleteUser = async (userId) => {
 };
 
 userService.checkIfUserExistsByEmail = async (email) => {
-    const { count, rows } = await User.findAndCountAll({
+    const count = await User.count({
         where: {
             email,
         },
@@ -57,7 +57,7 @@ userService.checkIfUserExistsByEmail = async (email) => {
 };
 
 userService.checkIfUserExistsByUsername = async (username) => {
-    const { count, rows } = await User.findAndCountAll({
+    const count = await User.count({
         where: {
             username,
         },
