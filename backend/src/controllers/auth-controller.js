@@ -12,8 +12,10 @@ authRoutes.post(
     validateUserRegistration,
     async (req, res, next) => {
         try {
-            const { newUser, token } = await authService.register(req.body);
-            res.status(200).json({ jwt: token });
+            const { token, refreshToken } = await authService.register(
+                req.body
+            );
+            res.status(200).json({ jwt: token, refreshToken });
         } catch (err) {
             res.status(400);
             next(err);
@@ -23,12 +25,12 @@ authRoutes.post(
 
 authRoutes.post('/login', validateUserLogin, async (req, res, next) => {
     try {
-        const token = await authService.login(
+        const { token, refreshToken } = await authService.login(
             req.body.usernameOrEmail,
             req.body.password
         );
 
-        res.json({ jwt: token });
+        res.json({ jwt: token, refreshToken });
     } catch (err) {
         if (err.message === 'User not found') {
             res.status(404);
@@ -36,6 +38,32 @@ authRoutes.post('/login', validateUserLogin, async (req, res, next) => {
             res.status(400);
         }
 
+        next(err);
+    }
+});
+
+authRoutes.post('/refresh-jwt/:token', async (req, res, next) => {
+    const refreshToken = req.params.token;
+
+    try {
+        const { token, newRefreshToken } = await authService.refreshJwt(
+            refreshToken
+        );
+        res.json({
+            jwt: token,
+            refreshToken: newRefreshToken,
+        });
+    } catch (err) {
+        res.status(400);
+        next(err);
+    }
+});
+
+authRoutes.post('/revoke-jwt', authenticateJWT, async (req, res, next) => {
+    try {
+        await authService.revokeJwt(req.userInfo.id);
+        res.sendStatus(204);
+    } catch (err) {
         next(err);
     }
 });

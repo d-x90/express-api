@@ -38,6 +38,15 @@ const User = sequelize.define(
             allowNull: false,
             defaultValue: USER_ROLES.USER,
         },
+        refreshToken: {
+            type: DataTypes.UUIDV4,
+            allowNull: true,
+        },
+        jwtValidAfter: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
+        },
     },
     {
         freezeTableName: true,

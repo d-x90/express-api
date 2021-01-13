@@ -1,26 +1,38 @@
-const { response } = require('express');
 const jwt = require('jsonwebtoken');
+const userService = require('./services/user-service');
 
 const { JWT_SIGN_KEY, NODE_ENV } = require('./config');
 
 const middlewares = {};
 
-middlewares.authenticateJWT = (req, res, next) => {
+middlewares.authenticateJWT = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (authHeader) {
         const token = authHeader.split(' ')[1];
 
         try {
-            req.userInfo = jwt.verify(token, JWT_SIGN_KEY);
+            tokenPayload = jwt.verify(token, JWT_SIGN_KEY);
+
+            let jwtValidAfter = await userService.getJwtValidAfterDateById(
+                tokenPayload.id
+            );
+            const issuedAt = Number(tokenPayload.iat);
+            jwtValidAfter = Math.floor(jwtValidAfter.getTime() / 1000);
+
+            if (issuedAt < jwtValidAfter) {
+                throw new Error('Jwt issued before valid date');
+            }
+
+            req.userInfo = tokenPayload;
             next();
         } catch (err) {
             res.status(403);
-            throw new Error('Forbidden');
+            next(new Error('Forbidden'));
         }
     } else {
         res.status(401);
-        throw new Error('Unauthorized');
+        next(new Error('Unauthorized'));
     }
 };
 

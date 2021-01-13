@@ -7,7 +7,7 @@ const authService = {};
 
 const { JWT_SIGN_KEY, JWT_EXPIRATION } = require('../config');
 
-const getJwtTokenForUser = (user) => {
+const createJwtForUser = (user) => {
     const payload = {
         id: user.id,
         username: user.username,
@@ -17,9 +17,11 @@ const getJwtTokenForUser = (user) => {
         role: user.role,
     };
 
-    return jwt.sign({ ...payload }, JWT_SIGN_KEY, {
+    const token = jwt.sign({ ...payload }, JWT_SIGN_KEY, {
         expiresIn: JWT_EXPIRATION,
     });
+
+    return token;
 };
 
 authService.register = async (newUser) => {
@@ -37,11 +39,12 @@ authService.register = async (newUser) => {
     newUser.password = await bcrypt.hash(newUser.password, 10);
 
     const savedUser = await userService.createUser(newUser);
-    const token = getJwtTokenForUser(savedUser);
+    const token = createJwtForUser(savedUser);
+    const refreshToken = await userService.updateRefreshToken(savedUser.id);
 
     logger.info(`User with email '${savedUser.email}' created successfully.`);
 
-    return { user: savedUser, token };
+    return { user: savedUser, token, refreshToken };
 };
 
 authService.login = async (usernameOrEmail, password) => {
@@ -53,15 +56,44 @@ authService.login = async (usernameOrEmail, password) => {
     }
 
     if (await bcrypt.compare(password, user.password)) {
-        const token = getJwtTokenForUser(user);
+        const token = createJwtForUser(user);
+        const refreshToken = await userService.updateRefreshToken(user.id);
         logger.info(`JWT token created for user '${user.email}'.`);
 
-        return token;
+        return { token, refreshToken };
     } else {
         logger.info(
             `Invalid credentials for usernameOrEmail: '${usernameOrEmail}'`
         );
         throw new Error('Invalid credentials');
+    }
+};
+
+authService.refreshJwt = async (refreshToken) => {
+    const user = await userService.getUserByRefreshToken(refreshToken);
+
+    if (!user) {
+        logger.info(`User not found. Refresh token: '${refreshToken}'`);
+        throw new Error('Invalid Refresh token');
+    }
+
+    const token = createJwtForUser(user);
+    const newRefreshToken = await userService.updateRefreshToken(user.id);
+    logger.info(`JWT token created for user '${user.email}'.`);
+
+    return { token, newRefreshToken };
+};
+
+authService.revokeJwt = async (userId) => {
+    try {
+        const jwtValidAfter = await userService.revokeJwtForUser(userId);
+
+        logger.info(
+            `JWT token revoked for user with id: '${userId}' at ${jwtValidAfter}.`
+        );
+    } catch (e) {
+        logger.error(`JWT revoke failed for user with id: ${userId}`);
+        throw new Error('JWT revoke failed');
     }
 };
 

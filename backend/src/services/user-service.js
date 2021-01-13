@@ -1,5 +1,7 @@
 const User = require('../models/user');
 const { Op } = require('sequelize');
+const uuid = require('uuid');
+const logger = require('../logger').get('./user-service.js');
 
 const userService = {};
 
@@ -30,12 +32,70 @@ userService.getUserByUsernameOrEmail = (usernameOrEmail) => {
     });
 };
 
+userService.getJwtValidAfterDateById = async (userId) => {
+    const result = await User.findOne({
+        attributes: ['jwtValidAfter'],
+        where: {
+            id: userId,
+        },
+    });
+
+    if (!result) {
+        throw new Error('User not found');
+    }
+
+    return result.jwtValidAfter;
+};
+
+userService.getUserByRefreshToken = (refreshToken) => {
+    return User.findOne({
+        where: {
+            refreshToken,
+        },
+    });
+};
+
 userService.updateUser = (user) => {
     return User.update(user, {
         where: {
             id: user.id,
         },
     });
+};
+
+userService.updateRefreshToken = async (userId) => {
+    const refreshToken = uuid.v4();
+
+    await User.update(
+        { refreshToken },
+        {
+            where: {
+                id: userId,
+            },
+        }
+    );
+
+    return refreshToken;
+};
+
+userService.revokeJwtForUser = async (userId) => {
+    const jwtValidAfter = Date.now();
+    const refreshToken = uuid.v4();
+
+    const [rowsUpdated] = await User.update(
+        { jwtValidAfter, refreshToken },
+        {
+            where: {
+                id: userId,
+            },
+        }
+    );
+
+    if (rowsUpdated !== 1) {
+        throw new Error('Update failed');
+    }
+
+    return jwtValidAfter;
 };
 
 userService.deleteUser = (userId) => {
