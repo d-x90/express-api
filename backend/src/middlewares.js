@@ -5,34 +5,38 @@ const { JWT_SIGN_KEY, NODE_ENV } = require('./config');
 
 const middlewares = {};
 
+const getTokenPayload = async (authorizationHeader) => {
+    const token = authorizationHeader.split(' ')[1];
+
+    tokenPayload = jwt.verify(token, JWT_SIGN_KEY);
+
+    let jwtValidAfter = await userService.getJwtValidAfterDateById(
+        tokenPayload.id
+    );
+    const issuedAt = Number(tokenPayload.iat);
+    jwtValidAfter = Math.floor(jwtValidAfter.getTime() / 1000);
+
+    if (issuedAt < jwtValidAfter) {
+        throw new Error('Jwt issued before valid date');
+    }
+
+    return tokenPayload;
+};
+
 middlewares.authenticateJWT = async (req, res, next) => {
     const authHeader = req.headers.authorization;
 
-    if (authHeader) {
-        const token = authHeader.split(' ')[1];
-
-        try {
-            tokenPayload = jwt.verify(token, JWT_SIGN_KEY);
-
-            let jwtValidAfter = await userService.getJwtValidAfterDateById(
-                tokenPayload.id
-            );
-            const issuedAt = Number(tokenPayload.iat);
-            jwtValidAfter = Math.floor(jwtValidAfter.getTime() / 1000);
-
-            if (issuedAt < jwtValidAfter) {
-                throw new Error('Jwt issued before valid date');
-            }
-
-            req.userInfo = tokenPayload;
-            next();
-        } catch (err) {
-            res.status(403);
-            next(new Error('Forbidden'));
-        }
-    } else {
+    if (!authHeader) {
         res.status(401);
-        next(new Error('Unauthorized'));
+        return next(new Error('Unauthorized'));
+    }
+
+    try {
+        req.userInfo = await getTokenPayload(authHeader);
+        next();
+    } catch (err) {
+        res.status(403);
+        next(new Error('Forbidden'));
     }
 };
 
