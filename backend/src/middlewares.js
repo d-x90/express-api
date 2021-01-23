@@ -8,7 +8,7 @@ const middlewares = {};
 const getTokenPayload = async (authorizationHeader) => {
     const token = authorizationHeader.split(' ')[1];
 
-    tokenPayload = jwt.verify(token, JWT_SIGN_KEY);
+    const tokenPayload = jwt.verify(token, JWT_SIGN_KEY);
 
     let jwtValidAfter = await userService.getJwtValidAfterDateById(
         tokenPayload.id

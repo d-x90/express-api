@@ -1,5 +1,5 @@
 const { Sequelize } = require('sequelize');
-const logger = require('./logger').get('db');
+const logger = require('./logger-factory').get('db');
 const {
     DB_CONNECTION_STRING,
     DB_LOG_SQL_TO_OUTPUT_ENABLED,

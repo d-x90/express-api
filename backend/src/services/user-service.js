@@ -1,7 +1,7 @@
 const User = require('../models/user');
 const { Op } = require('sequelize');
 const uuid = require('uuid');
-const logger = require('../logger').get('./user-service.js');
+const logger = require('../logger-factory').get('./user-service.js');
 
 const userService = {};
 

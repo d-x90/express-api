@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const userService = require('./user-service');
-const logger = require('../logger').get('auth-service');
+const logger = require('../logger-factory').get('auth-service');
 const bcrypt = require('bcrypt');
 
 const authService = {};

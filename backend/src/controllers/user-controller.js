@@ -1,7 +1,7 @@
 const { authenticateJWT } = require('../middlewares');
 const userService = require('../services/user-service');
 const userRoutes = require('express').Router();
-const logger = require('../logger').get('user-controller');
+const logger = require('../logger-factory').get('user-controller');
 const { mapUserToUserDto } = require('../mapper');
 
 userRoutes.get('/own-user', authenticateJWT, async (req, res, next) => {
